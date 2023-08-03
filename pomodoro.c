@@ -50,13 +50,13 @@ void displayProgressBar(int progress, int total, int type, int rep, int max)
         {
             printf(" START BREAK ");
             system("notify-send \"Pomodoro\" \"Start break\"");
-            system("paplay break.wav");
+            system("paplay break.wav &");
         }
         else
         {
             printf("  START WORK ");
             system("notify-send \"Pomodoro\" \"Start work\"");
-            system("paplay work.wav");
+            system("paplay work.wav &");
         }
         printf("%d/%d", rep, max);
         fflush(stdout);
@@ -104,7 +104,7 @@ void pausee()
         if (pfd.revents & POLLIN)
             clear_stdin();
 
-    printf("\nPAUSED. Press any button to continue\n");
+    printf("\nPAUSED. Press ENTER button to continue\n");
     getchar();
     system("clear");
     printBanner();
@@ -127,9 +127,9 @@ int main(int argc, char **argv)
     while (1)
     {
         int elapsed_time = 0;
-        int progress = 0;
         for (int curr_rep = 0; curr_rep < lap_num; curr_rep++)
         {
+            // WORK
             elapsed_time = 0;
             while (elapsed_time <= laptime)
             {
@@ -149,36 +149,52 @@ int main(int argc, char **argv)
                             pausee();
                         }
                     }
-                progress = (int)((double)elapsed_time / laptime * 100);
             }
+
+            // SHORT BREAK
             elapsed_time = 0;
             if (curr_rep != lap_num - 1)
                 while (elapsed_time <= breaktime)
                 {
-                    clear_stdin();
                     displayProgressBar(elapsed_time, laptime, 1, curr_rep + 1, lap_num);
                     sleep(1); // Wait for 1 second
                     elapsed_time++;
-                    if (isatty(STDIN_FILENO))
-                    {
-                        printf("PUSTY2");
-                    }
-                    progress = (int)((double)elapsed_time / laptime * 100);
+                    struct pollfd pfd = {.fd = fileno(stdin), .events = POLLIN};
+                    if (poll(&pfd, 1, 0) > 0)
+                        if (pfd.revents & POLLIN)
+                        {
+                            char c = getchar();
+                            if (c == '\n')
+                            {
+                                system("clear");
+                                printBanner();
+                                displayProgressBar(elapsed_time, laptime, 1, curr_rep + 1, lap_num);
+                                pausee();
+                            }
+                        }
                 }
         }
+
+        // LONG BREAK
         elapsed_time = 0;
         while (elapsed_time <= long_break)
         {
-            clear_stdin();
             displayProgressBar(elapsed_time, laptime, 2, lap_num, lap_num);
             sleep(1); // Wait for 1 second
             elapsed_time++;
-            if (isatty(STDIN_FILENO))
-            {
-                printf("PUSTY3");
-                sleep(1);
-            }
-            progress = (int)((double)elapsed_time / laptime * 100);
+            struct pollfd pfd = {.fd = fileno(stdin), .events = POLLIN};
+            if (poll(&pfd, 1, 0) > 0)
+                if (pfd.revents & POLLIN)
+                {
+                    char c = getchar();
+                    if (c == '\n')
+                    {
+                        system("clear");
+                        printBanner();
+                        displayProgressBar(elapsed_time, laptime, 2, lap_num, lap_num);
+                        pausee();
+                    }
+                }
         }
     }
     return 0;
