@@ -141,7 +141,7 @@ int main(int argc, char **argv)
     int laptime = argc > 1 ? atoi(argv[1]) * 60 : 30 * 60;
     int breaktime = argc > 2 ? atoi(argv[2]) * 60 : 5 * 60;
     int long_break = argc > 3 ? atoi(argv[4]) * 60 : 45 * 60;
-    int lap_num = argc > 4 ? atoi(argv[3]) : 4 * 60;
+    int lap_num = argc > 4 ? atoi(argv[3]) : 4;
 
     while (1)
     {
