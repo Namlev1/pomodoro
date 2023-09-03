@@ -50,13 +50,13 @@ void displayProgressBar(int progress, int total, int type, int rep, int max)
         {
             printf(" START BREAK ");
             system("notify-send \"Pomodoro\" \"Start break\"");
-            system("paplay break.wav &");
+            system("paplay ~/OneDrive/Dokumenty/Programowanie/C/pomodoro/break.wav &");
         }
         else
         {
             printf("  START WORK ");
             system("notify-send \"Pomodoro\" \"Start work\"");
-            system("paplay work.wav &");
+            system("paplay ~/OneDrive/Dokumenty/Programowanie/C/pomodoro/work.wav &");
         }
         printf("%d/%d", rep, max);
         fflush(stdout);
@@ -115,14 +115,33 @@ void pausee()
             clear_stdin();
 }
 
+void print_help()
+{
+    printf("CLI program to track work-break time with pomodoro technique\n");
+    printf("\nusage: pomodoro <laptime> <breaktime> <long break time> <number of laps>\n");
+    printf("\ndefault options\n");
+    printf("laptime: 30min\n");
+    printf("breaktime: 5min\n");
+    printf("long break time: 45min\n");
+    printf("number of laps: 4\n");
+    printf("full cicle time: 3h\n");
+}
+
 int main(int argc, char **argv)
 {
+    if (argc > 1 && strcmp(argv[1], "--help") == 0)
+    {
+        print_help();
+        return 0;
+    }
+
     system("clear");
     printBanner();
-    int laptime = argc > 1 ? atoi(argv[1]) * 60 : 8;
-    int breaktime = argc > 2 ? atoi(argv[2]) * 60 : 8;
-    int long_break = argc > 3 ? atoi(argv[4]) * 60 : 8;
-    int lap_num = argc > 4 ? atoi(argv[3]) : 2;
+
+    int laptime = argc > 1 ? atoi(argv[1]) * 60 : 30 * 60;
+    int breaktime = argc > 2 ? atoi(argv[2]) * 60 : 5 * 60;
+    int long_break = argc > 3 ? atoi(argv[4]) * 60 : 45 * 60;
+    int lap_num = argc > 4 ? atoi(argv[3]) : 4 * 60;
 
     while (1)
     {
